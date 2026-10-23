@@ -1,4 +1,4 @@
-<title>רֶה עַל הַחֲמֵשָׁה</title>
+<title>רֶה עַל הַחַמְשָׁה</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Heebo:wght@400;500;700;900&family=Noto+Music&display=swap">
@@ -853,7 +853,7 @@
             <line x1="19" y1="5" x2="5" y2="19"></line>
           </g>
         </svg>
-        <h1 id="headline">מִי מַגִּיעַ לַחֲמֵשָׁה?</h1>
+        <h1 id="headline">מִי מַגִּיעַ לַחַמְשָׁה?</h1>
       </div>
       <div class="eyebrow" id="eyebrow">שְׂפַת הַתָּוִים · הֶיכֵּרוּת</div>
     </div>
@@ -887,7 +887,7 @@
   </header>
 
   <main id="stage">
-    <svg id="staff" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-label="חֲמֵשָׁה עִם מַפְתֵּחַ סוֹל">
+    <svg id="staff" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-label="חַמְשָׁה עִם מַפְתֵּחַ סוֹל">
       <defs>
         <clipPath id="clefClip" clipPathUnits="userSpaceOnUse">
           <rect x="88" y="60" width="340" height="980"></rect>
@@ -933,7 +933,7 @@
   <section id="piano" aria-label="הַפְּסַנְתֵּר">
     <div class="kb-head">
       <div class="kbmode" role="group" aria-label="מַה הַפְּסַנְתֵּר עוֹשֶׂה">
-        <button type="button" data-pm="write" aria-pressed="true">כִּתְבוּ עַל הַחֲמֵשָׁה</button>
+        <button type="button" data-pm="write" aria-pressed="true">כִּתְבוּ עַל הַחַמְשָׁה</button>
         <button type="button" data-pm="play" aria-pressed="false">נַגְּנוּ אֶת הַשּׁוּרָה</button>
       </div>
       <p class="kb-tip" id="kbTip"></p>
@@ -1482,7 +1482,7 @@
   }
 
   function startWrite(){
-    if(placed.length >= maxSlots){ flash("הַחֲמֵשָׁה מְלֵאָה"); return; }
+    if(placed.length >= maxSlots){ flash("הַחַמְשָׁה מְלֵאָה"); return; }
     audio();
     hold = {write:true, t0:Date.now(), raf:0, qDone:false, wDone:false,
             qNeed: bpmMs * HOLD_FRACTION,         /* a quarter, at the one length the page uses */
@@ -1643,7 +1643,7 @@
   function addNote(value, silent){
     /* a button click passes an event here, so only a string counts as a value */
     var v = (typeof value === "string") ? value : DUR;
-    if(placed.length >= maxSlots){ flash("הַחֲמֵשָׁה מְלֵאָה"); return; }
+    if(placed.length >= maxSlots){ flash("הַחַמְשָׁה מְלֵאָה"); return; }
     var key = LESSON, i = placed.length;
     placed.push({key:key, dur:v});
     var g = buildNote(key, xs[i], v);
@@ -1699,7 +1699,7 @@
     });
     if(!placed.length){
       closePiano();
-      headline.textContent = "מִי מַגִּיעַ לַחֲמֵשָׁה?";
+      headline.textContent = "מִי מַגִּיעַ לַחַמְשָׁה?";
       btnReveal.textContent = "מִי הַתָּו הֶחָדָשׁ?";
       setStep(0);
     }
@@ -1757,7 +1757,7 @@
     if(!placed.length){
       stopClicker();
       closePiano();
-      headline.textContent = "מִי מַגִּיעַ לַחֲמֵשָׁה?";
+      headline.textContent = "מִי מַגִּיעַ לַחַמְשָׁה?";
       btnReveal.textContent = "מִי הַתָּו הֶחָדָשׁ?";
       setStep(0);
     }
@@ -2426,7 +2426,7 @@
 
   var DRAW_STEPS = [
     "הוֹצִיאוּ לוּחַ מָחִיק וְטוּשׁ",
-    "צַיְּרוּ חֲמֵשָׁה",
+    "צַיְּרוּ חַמְשָׁה",
     "צַיְּרוּ מַפְתֵּחַ סוֹל",
     "צַיְּרוּ אֶת " + NOTES[LESSON].he
   ];
@@ -2563,7 +2563,7 @@
       headline.textContent = NOTES[LESSON].he;
       setStep(1);
     } else {
-      headline.textContent = "מִי מַגִּיעַ לַחֲמֵשָׁה?";
+      headline.textContent = "מִי מַגִּיעַ לַחַמְשָׁה?";
       btnReveal.textContent = "מִי הַתָּו הֶחָדָשׁ?";
       setStep(0);
     }
@@ -2874,7 +2874,7 @@
     clearPeek();
     eyebrow.textContent = EYEBROW_HOME;
     restoreRow();
-    headline.textContent = savedRow ? NOTES[LESSON].he : "מִי מַגִּיעַ לַחֲמֵשָׁה?";
+    headline.textContent = savedRow ? NOTES[LESSON].he : "מִי מַגִּיעַ לַחַמְשָׁה?";
     setStep(savedRow ? 1 : 0);
   }
   function inGame(){ return app.dataset.mode === "game"; }
@@ -3362,7 +3362,7 @@
     delete app.dataset.verdict;
     clearDone();
     try{ window.sessionStorage.removeItem(SAVE_KEY); }catch(err){}
-    headline.textContent = "מִי מַגִּיעַ לַחֲמֵשָׁה?";
+    headline.textContent = "מִי מַגִּיעַ לַחַמְשָׁה?";
     btnReveal.textContent = "מִי הַתָּו הֶחָדָשׁ?";
     eyebrow.textContent = EYEBROW_HOME;
     setStep(0);
