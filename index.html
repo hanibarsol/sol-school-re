@@ -516,7 +516,29 @@
   #app[data-mode="draw"] #btnPlay,
   #app[data-mode="draw"] .tempo{display:none;}
   #app[data-mode="draw"] #btnStep,
+  #app[data-mode="draw"] #btnMusic,
   #app[data-mode="draw"] #btnExit{display:inline-flex;}
+  /* on the main row and while they draw; the games have a row of their own */
+  #btnMusic{
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--blue); padding:.5rem; width:3rem; height:3rem; border-radius:50%;
+  }
+  #app[data-mode="game"] #btnMusic{display:none;}
+  #btnMusic.live{background:var(--teal);}
+  /* the name of the piece, so the class can be told what they are hearing */
+  #musicName{
+    display:none; align-self:center; color:var(--ink); opacity:.75;
+    font-family:"Fredoka","Heebo",sans-serif; font-weight:600;
+    font-size:clamp(.85rem,1.6vw,1.05rem);
+  }
+  #musicName.show{display:inline;}
+  #btnMusic svg{width:1.6rem; height:1.6rem; fill:none; stroke:var(--white); stroke-width:2.2;
+                stroke-linecap:round; stroke-linejoin:round;}
+  #btnMusic .cup{fill:var(--white); stroke:none;}
+  #btnMusic .stop{fill:var(--white); stroke:none;}
+  #btnMusic .stop,
+  #btnMusic.live .phones{display:none;}
+  #btnMusic.live .stop{display:block;}
   /* only offered once there is something to repeat */
   #app[data-mode="draw"][data-drawn="1"] #btnRedraw{display:inline-flex;}
   /* only while the lines themselves are the subject */
@@ -970,6 +992,18 @@
     <button id="btnStep" class="pill">הַבָּא</button>
     <button id="btnRedraw" class="pill dim">הַדְגָּמָה שׁוּב</button>
     <button id="btnNums" class="pill dim">מִסְפּוּר הַקַּוִּים</button>
+    <span id="musicName" aria-live="polite"></span>
+    <button id="btnMusic" class="pill" type="button"
+            aria-label="הַפְעָלַת מוּזִיקָה" title="מוּזִיקָה">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <g class="phones">
+          <path d="M4 14.5v-2.5a8 8 0 0 1 16 0v2.5"></path>
+          <rect class="cup" x="2.2" y="13" width="5.2" height="7.6" rx="2.4"></rect>
+          <rect class="cup" x="16.6" y="13" width="5.2" height="7.6" rx="2.4"></rect>
+        </g>
+        <rect class="stop" x="6" y="6" width="12" height="12" rx="2.6"></rect>
+      </svg>
+    </button>
     <button id="btnExit" class="pill dim">חֲזָרָה</button>
     <div class="tempo" id="value" role="group" aria-label="מֶשֶׁךְ הַתָּו">
       <button data-val="quarter" aria-pressed="true">רֶבַע</button>
@@ -983,6 +1017,11 @@
     <button id="btnNewClass" type="button">כִּתָּה חֲדָשָׁה</button>
     <p class="keys-legend">קִצּוּרֵי דֶּרֶךְ: <kbd>←</kbd> הוֹסָפַת הַתָּו · <kbd>→</kbd> לְהָסִיר · <kbd>רֶוַח</kbd> קְלִיקֶר · <kbd>↓</kbd> פְּסַנְתֵּר · <kbd>G</kbd> מִילָּה טוֹבָה</p>
   </footer>
+
+  <!-- Five calm pieces, each five minutes, all CC0 or public domain. They sit
+       in the front page repo so one copy serves every lesson. The file is
+       chosen at the first press; nothing loads before that. -->
+  <audio id="study" preload="none"></audio>
 
   <div id="screen" role="dialog" aria-modal="true" aria-label="הַסִּרְטוֹן">
     <div class="screen-inner">
@@ -1785,6 +1824,7 @@
 
   /* ---------------- clicker ---------------- */
   function startClicker(){
+    stopMusic();
     /* pressed on an empty staff: put the note down rather than refuse */
     if(!placed.length){ addNote(); }
     if(!placed.length){ return; }
@@ -2417,6 +2457,54 @@
   var btnDraw = document.getElementById("btnDraw");
   var btnStep = document.getElementById("btnStep");
   var btnExit = document.getElementById("btnExit");
+
+  /* quiet music for the minutes the class spends drawing */
+  var studyEl = document.getElementById("study");
+  var btnMusic = document.getElementById("btnMusic");
+  var musicNameEl = document.getElementById("musicName");
+  /* all five are CC0 or public domain, checked at the source. The prelude opens
+     the list because it lives in דו major, the home of the first note. */
+  var MUSIC = [
+    {name:"בָּאךְ · פְּרֶלוּד בְּדוֹ מָז'וֹר", file:"bach-prelude"},
+    {name:"סָאטִי · ז'ִימְנוֹפֵּדִי מִסְפָּר 1", file:"satie-gymnopedie"},
+    {name:"שׁוּמַן · חֲלִימָה",              file:"schumann-traumerei"},
+    {name:"דֶּבּוּסִי · חֲלוֹם בְּהָקִיץ",     file:"debussy-reverie"},
+    {name:"בָּאךְ · אַרְיָה",                file:"bach-air"}
+  ];
+  var MUSIC_HOME = "https://hanibarsol.github.io/sol-school/media/music/";
+  var musicIdx = -1;
+  studyEl.volume = 0.5;             /* it sits under whatever Hani says over it */
+  function stopMusic(){
+    if(studyEl.paused && !studyEl.currentTime){ return; }
+    studyEl.pause();
+    studyEl.currentTime = 0;
+    btnMusic.setAttribute("aria-label", "הַפְעָלַת מוּזִיקָה");
+    btnMusic.classList.remove("live");
+    musicNameEl.classList.remove("show");
+    musicNameEl.textContent = "";
+  }
+  function toggleMusic(){
+    if(studyEl.paused){
+      /* the next piece in the list, so the drawing minutes are not always the same */
+      musicIdx = (musicIdx + 1) % MUSIC.length;
+      var piece = MUSIC[musicIdx];
+      studyEl.src = MUSIC_HOME + piece.file + ".mp3";
+      musicNameEl.textContent = piece.name;
+      musicNameEl.classList.add("show");
+      var p = studyEl.play();
+      if(p && p.catch){ p.catch(function(){ flash("הַמּוּזִיקָה לֹא נִפְתְּחָה, נַסּוּ שׁוּב"); }); }
+      btnMusic.setAttribute("aria-label", "עֲצִירַת הַמּוּזִיקָה");
+      btnMusic.classList.add("live");
+    } else {
+      stopMusic();
+    }
+  }
+  btnMusic.addEventListener("click", toggleMusic);
+  studyEl.addEventListener("ended", stopMusic);
+  studyEl.addEventListener("error", function(){
+    flash("הַמּוּזִיקָה לֹא נִטְעֲנָה, בִּדְקוּ אֶת הָאִינְטֶרְנֶט");
+    stopMusic();
+  });
   var drawStage = -1, savedCount = 0, lastStepAt = 0, traced = false;
   var drawn = [false, false, false, false];   /* has each step been demonstrated yet */
   var busy = false;                           /* an animation is running */
@@ -2537,6 +2625,7 @@
   }
 
   function exitDraw(){
+    stopMusic();
     drawStage = -1;
     traced = false;
     busy = false;
@@ -2843,6 +2932,7 @@
   }
 
   function enterGames(){
+    stopMusic();
     markDone("btnPlay");
     stopClicker();
     closePiano();
