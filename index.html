@@ -848,6 +848,21 @@
     width:100%;text-align:center;margin:0;
     font-size:clamp(.7rem,1.05vw,.9rem);color:var(--text-soft);letter-spacing:.03em;
   }
+  /* the lesson waits behind one touch, so the sound is awake before it starts */
+  #gate{
+    position:fixed; inset:0; z-index:60; background:var(--white);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  #app[data-ready="1"] ~ #gate, #gate.gone{display:none;}
+  .gate-box{display:grid; justify-items:center; gap:18px; text-align:center;}
+  .gate-note{width:clamp(70px,12vw,120px); height:auto; fill:var(--purple); stroke:var(--purple);
+             stroke-width:1.6; stroke-linejoin:round;}
+  #gateBtn{
+    font-family:"Fredoka","Heebo",sans-serif; font-weight:600;
+    font-size:clamp(1.3rem,3.6vw,2.1rem); color:var(--white); background:var(--purple);
+    border:0; border-radius:999px; padding:.8rem 2.4rem; cursor:pointer;
+  }
+  #gateBtn:focus-visible{outline:4px solid var(--teal); outline-offset:3px;}
   kbd{
     background:var(--chrome);border:1px solid var(--hair);
     border-radius:6px;padding:.05em .45em;font-size:.95em;font-family:inherit;
@@ -1022,6 +1037,17 @@
        in the front page repo so one copy serves every lesson. The file is
        chosen at the first press; nothing loads before that. -->
   <audio id="study" preload="none"></audio>
+
+  <div id="gate">
+    <div class="gate-box">
+      <svg class="gate-note" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 17.5V4.2l10-2v13.3"></path>
+        <circle cx="6" cy="18" r="3"></circle>
+        <circle cx="16" cy="16" r="3"></circle>
+      </svg>
+      <button id="gateBtn" type="button">מַתְחִילִים</button>
+    </div>
+  </div>
 
   <div id="screen" role="dialog" aria-modal="true" aria-label="הַסִּרְטוֹן">
     <div class="screen-inner">
@@ -3561,6 +3587,27 @@
     if(Array.isArray(s.done)){ s.done.forEach(markDone); }
     if(s.star && targetKeyEl){ targetKeyEl.classList.add("earned"); }
   }
+
+  /* one touch, three jobs: wake the sound, say so if the device refuses,
+     and get out of the way */
+  (function(){
+    var gate = document.getElementById("gate");
+    var btn = document.getElementById("gateBtn");
+    function open(){
+      var c = null;
+      try{ c = audio(); }catch(err){}
+      gate.classList.add("gone");           /* the lesson opens either way */
+      if(!c){ return; }
+      /* the engine needs a moment; only a second later is silence real silence */
+      setTimeout(function(){
+        if(c.state !== "running"){
+          flash("הַמַּכְשִׁיר בְּמַצַּב שָׁקֵט. כַּבּוּ אוֹתוֹ וְהַגְבִּירוּ אֶת הָעָצְמָה");
+        }
+      }, 1000);
+    }
+    btn.addEventListener("click", open);
+    gate.addEventListener("touchstart", function(e){ if(e.cancelable){ e.preventDefault(); } open(); }, {passive:false});
+  })();
 
   window.addEventListener("resize", layout);
 
